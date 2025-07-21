@@ -1,3 +1,4 @@
+#include "Othello/control_plane_othello.h"
 #include "common.h"
 #include "cstdlib"
 #include "Othello/data_plane_othello.h"
@@ -212,8 +213,7 @@ void testHLR() {
 }
 
 int main(int argc, char **argv) {
-    commonInit();
-    testHLR<uint64_t, uint8_t>();
+    ControlPlaneOthello<int, int> cp(2e6);
+    for (int i = 0; i < 2e6; i++) cp.insert(i, i, true);
+    cout << cp.skipped << endl;
 }
-
-

@@ -64,6 +64,8 @@ public:
   bool maintainingDP = maintainDP;
   bool compact;
   
+  int skipped = 0;
+  
   void setSeed(int seed) {
     seed = (seed != -1) ? seed : rand();
     hd.setSeed(seed);
@@ -852,7 +854,9 @@ public:
     
     if (keyCnt + 1 >= keys.size() || keyCnt >= mb) {
       if (DoNotRebuild) {
-        throw runtime_error("Do not allow rebuild");
+          ++skipped;
+          return -1;
+          // throw runtime_error("Do not allow rebuild");
       } else { resizeKey(keyCnt + 1); }
     }
     keyCnt++;
@@ -866,8 +870,10 @@ public:
     int64_t result = 1LL << VDL;
     if (isConnectedDFS(ha, hb)) {
       if (DoNotRebuild) {
-        keyCnt -= 1;
-        throw runtime_error("Do not allow rebuild");
+          ++skipped;
+          keyCnt -= 1;
+          return -1;
+          throw runtime_error("Do not allow rebuild");
       }
       
       #ifndef NDEBUG
