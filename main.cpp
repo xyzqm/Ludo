@@ -212,8 +212,59 @@ void testHLR() {
 
 }
 
+class Timer
+{
+public:
+    void start()
+    {
+        m_StartTime = std::chrono::system_clock::now();
+        m_bRunning = true;
+    }
+
+    void stop()
+    {
+        m_EndTime = std::chrono::system_clock::now();
+        m_bRunning = false;
+    }
+
+    double elapsedMilliseconds()
+    {
+        std::chrono::time_point<std::chrono::system_clock> endTime;
+
+        if(m_bRunning)
+        {
+            endTime = std::chrono::system_clock::now();
+        }
+        else
+        {
+            endTime = m_EndTime;
+        }
+
+        return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
+    }
+
+    double elapsedSeconds()
+    {
+        return elapsedMilliseconds() / 1000.0;
+    }
+
+private:
+    std::chrono::time_point<std::chrono::system_clock> m_StartTime;
+    std::chrono::time_point<std::chrono::system_clock> m_EndTime;
+    bool                                               m_bRunning = false;
+};
+
+int mode = 1;
+
 int main(int argc, char **argv) {
     ControlPlaneOthello<int, int> cp(2e6);
-    for (int i = 0; i < 2e6; i++) cp.insert(i, i, true);
-    cout << cp.skipped << endl;
+    for (int i = 0; i < 2e6; i++) cp.insert(i, i, mode);
+    int v;
+    cout << "done inserting" << endl;
+    Timer t;
+    t.start();
+    for (int t = 0; t < 20; t++) for (int i = 0; i < 2e6; i++) cp.lookUp(i, v, mode);
+    t.stop();
+    cout << t.elapsedMilliseconds() << endl;
+    cout << cp.bad.size() << endl;
 }

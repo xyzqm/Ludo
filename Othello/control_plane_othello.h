@@ -66,6 +66,8 @@ public:
   
   int skipped = 0;
   
+  map<K, V> bad;
+  
   void setSeed(int seed) {
     seed = (seed != -1) ? seed : rand();
     hd.setSeed(seed);
@@ -199,8 +201,9 @@ public:
   /// \param v the lookup value for k
   /// \return the lookup action is successful, but it does not mean the key is really a member
   /// \note No membership is checked. Use isMember to check the membership
-  inline bool lookUp(const K &k, V &out) const {
-    if (maintainingDP) {
+  inline bool lookUp(const K &k, V &out, bool usingBad = false) const {
+      if (usingBad && bad.count(k)) return bad.at(k);
+      if (maintainingDP) {
       uint32_t ha, hb;
       getIndices(k, ha, hb);
       V aa = memGet(ha);
@@ -855,6 +858,7 @@ public:
     if (keyCnt + 1 >= keys.size() || keyCnt >= mb) {
       if (DoNotRebuild) {
           ++skipped;
+          bad[k] = v;
           return -1;
           // throw runtime_error("Do not allow rebuild");
       } else { resizeKey(keyCnt + 1); }
@@ -872,6 +876,7 @@ public:
       if (DoNotRebuild) {
           ++skipped;
           keyCnt -= 1;
+          bad[k] = v;
           return -1;
           throw runtime_error("Do not allow rebuild");
       }
