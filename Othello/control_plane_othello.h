@@ -66,7 +66,7 @@ public:
   
   int skipped = 0;
   
-  map<K, V> bad;
+  unordered_map<K, V> bad;
   
   void setSeed(int seed) {
     seed = (seed != -1) ? seed : rand();
